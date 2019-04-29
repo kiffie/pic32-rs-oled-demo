@@ -1,0 +1,19 @@
+[package]
+name = "oled-test"
+version = "0.1.0"
+authors = ["Kiffie van Haash"]
+license = "MIT"
+edition = "2018"
+
+[dependencies]
+mips_rt = { path = "../mcu-rs/mips-rt" }
+bare-metal = { version = "0.2.4", features = ["const-fn"] }
+volatile-register = "0.2.0"
+pic32mx1xxfxxxb = { git = "https://github.com/kiffie/pic32-pac.git" }
+tinylog = { path = "../mcu-rs/tinylog" }
+pic32-hal = { path = "../mcu-rs/pic32-hal" }
+ssd1306 = "0.2.4"
+embedded-graphics = "0.4.7"
+
+[profile.release]
+opt-level = "s"

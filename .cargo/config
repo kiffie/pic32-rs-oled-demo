@@ -1,0 +1,7 @@
+[target.mipsel-none]
+rustflags = ["-C", "link-arg=-Tlink.x",
+             "-C", "relocation-model=static"]
+
+[build]
+target = "mipsel-none"
+
