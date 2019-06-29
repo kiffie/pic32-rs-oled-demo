@@ -1,4 +1,4 @@
-//! OLED test 
+//! OLED test
 
 
 #![no_main]
@@ -6,14 +6,19 @@
 
 use core::panic::PanicInfo;
 use core::fmt::Write;
+use core::cell::Cell;
 use tinylog;
 use tinylog::{debug, info, error};
 use mips_rt;
-use pic32mx1xxfxxxb;
+pub use pic32mx1xxfxxxb as pac;
+
+use mips_rt::interrupt;
 
 use pic32_hal::uart;
 use pic32_hal::uart::Uart;
 use pic32_hal::i2c;
+use pic32_hal::cp0timer;
+use pic32_hal::cp0timer::time_from_secs;
 
 use ssd1306::Builder;
 use ssd1306::mode::GraphicsMode;
@@ -86,9 +91,32 @@ impl tinylog::Log for UartLogger {
     fn flush(&self) {}
 }
 
+fn get_led() -> bool {
+    let  p = unsafe { pic32mx1xxfxxxb::Peripherals::steal()};
+    p.PORTB.latb.read().latb4().bit()
+}
+
+fn set_led(on: bool){
+    let  p = unsafe { pic32mx1xxfxxxb::Peripherals::steal()};
+    p.PORTB.trisbclr.write(|w| {w.trisb4().bit(true)});
+    if on {
+        p.PORTB.latbset.write(|w| {w.latb4().bit(true)});
+    }else{
+        p.PORTB.latbclr.write(|w| {w.latb4().bit(true)});
+    }
+}
+
+
 static mut UART_LOGGER: UartLogger = UartLogger::new();
 
-const SYS_CLOCK: u32 = 40000000;
+pub const SYS_CLOCK: u32 = 40000000;
+
+fn timer_handler(when: cp0timer::Time){
+    set_led(!get_led());
+    let mut timer = cp0timer::Timer::new();
+    timer.at(when + time_from_secs(1), timer_handler).unwrap();
+}
+
 
 #[no_mangle]
 pub fn main() -> ! {
@@ -106,8 +134,16 @@ pub fn main() -> ! {
         UART_LOGGER.set_tx(tx);
         tinylog::set_logger(&UART_LOGGER);
     }
+    unsafe {
+        interrupt::enable_mv_irq();
+        interrupt::enable();
+    }
+
+
 
     let mut state = false;
+
+    set_led(true);
 
     info!("initializing display");
     let mut i2c = i2c::I2c::new(i2c::HwModule::I2C1);
@@ -115,13 +151,22 @@ pub fn main() -> ! {
     let mut disp: GraphicsMode<_> = Builder::new().connect_i2c(i2c).into();
     disp.init().unwrap();
     disp.flush().unwrap();
-    
-    
+
+
     let bitmap = include_bytes!("./rust.raw");
-    
+
     info!("starting loop");
     let mut x = 0;
     let mut move_right = true;
+
+    let mut timer = cp0timer::Timer::new();
+    timer.at(timer.now() + time_from_secs(1), timer_handler).unwrap();
+
+    for i in 1..10 {
+        set_led( i & 0x01 != 0);
+        timer.delay_millis(100);
+    }
+
     loop {
         let im = Image1BPP::new(bitmap, 64, 64).translate(Coord::new(x, 0));
         disp.clear();
@@ -132,7 +177,7 @@ pub fn main() -> ! {
             if x < 64 {
                 x += 1;
             }else{
-                debug!("left");
+                debug!("left, seconds = {}", timer.now_secs());
                 move_right = false;
             }
         }else {

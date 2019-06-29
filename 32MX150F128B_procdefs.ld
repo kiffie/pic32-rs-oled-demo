@@ -6,7 +6,7 @@
  * Symbols used for interrupt-vector table generation
  *************************************************************************/
 PROVIDE(_vector_spacing = 0x0001);
-PROVIDE(_ebase_address = 0x9FC01000);
+PROVIDE(_ebase_address = 0x9D01F000);  /* last 4 KiB of program flash */
 
 /*************************************************************************
  * Memory Address Equates
@@ -20,8 +20,8 @@ PROVIDE(_ebase_address = 0x9FC01000);
 _RESET_ADDR                    = 0xBFC00000;
 _BEV_EXCPT_ADDR                = 0xBFC00380;
 _DBG_EXCPT_ADDR                = 0xBFC00480;
-_DBG_CODE_ADDR                 = 0xBFC02000;
-_DBG_CODE_SIZE                 = 0xFF0;
+_DBG_CODE_ADDR                 = 0x9FC00490;
+_DBG_CODE_SIZE                 = 0x760;
 _GEN_EXCPT_ADDR                = _ebase_address + 0x180;
 
 /*************************************************************************
@@ -42,9 +42,9 @@ MEMORY
 {
   kseg0_program_mem     (rx)  : ORIGIN = 0x9D000000, LENGTH = 0x1F000
 /*  kseg0_boot_mem              : ORIGIN = 0x9FC00490, LENGTH = 0x970 */
-  exception_mem               : ORIGIN = 0x9FC01000, LENGTH = 0x1000
+  exception_mem               : ORIGIN = 0x9D01F000, LENGTH = 0x1000
   kseg1_boot_mem              : ORIGIN = 0xBFC00000, LENGTH = 0x490
-  debug_exec_mem              : ORIGIN = 0xBFC02000, LENGTH = 0xFF0
+  debug_exec_mem              : ORIGIN = 0x0FC00490, LENGTH = 0x760
   kseg1_data_mem       (w!x)  : ORIGIN = 0xA0000000, LENGTH = 0x8000
   sfrs                        : ORIGIN = 0xBF800000, LENGTH = 0x100000
   configsfrs                  : ORIGIN = 0xBFC00BF0, LENGTH = 0x10
