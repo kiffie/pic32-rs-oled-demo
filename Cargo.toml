@@ -5,15 +5,19 @@ authors = ["Kiffie van Haash"]
 license = "MIT"
 edition = "2018"
 
+[features]
+pic32mx1xxfxxxb = ["pic32-hal/pic32mx1xxfxxxb"]
+pic32mx274fxxxb = ["pic32-hal/pic32mx274fxxxb"]
+default = ["pic32mx1xxfxxxb"]
+#default = ["pic32mx274fxxxb"]
+
 [dependencies]
 mips_rt = { path = "../mcu-rs/mips-rt" }
-bare-metal = { version = "0.2.4", features = ["const-fn"] }
-volatile-register = "0.2.0"
-pic32mx1xxfxxxb = { git = "https://github.com/kiffie/pic32-pac.git" }
+embedded-hal = "0.2.3"
 tinylog = { path = "../mcu-rs/tinylog" }
-pic32-hal = { path = "../mcu-rs/pic32-hal", features = ["pic32mx1xxfxxxb"] }
-ssd1306 = "0.2.4"
-embedded-graphics = "0.4.7"
+pic32-hal = { path = "../mcu-rs/pic32-hal" }
+ssd1306 = "0.2.6"
+embedded-graphics = "0.4.9"
 
 [profile.release]
 opt-level = "s"
