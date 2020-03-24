@@ -7,7 +7,6 @@
 use core::cell::RefCell;
 use core::panic::PanicInfo;
 
-
 use tinylog;
 use tinylog::{debug, info, error};
 use mips_rt;
@@ -22,7 +21,7 @@ use pic32_hal::pac;
 use pic32_hal::pac::{UART1};
 use pic32_hal::uart::{Uart, Tx};
 use pic32_hal::gpio::GpioExt;
-use pic32_hal::coretimer::Coretimer;
+use pic32_hal::coretimer::Delay;
 use pic32_hal::i2c::{I2c, Fscl};
 use pic32_hal::clock::Osc;
 use pic32_hal::time::U32Ext;
@@ -92,7 +91,7 @@ pub fn main() -> ! {
     #[cfg(feature = "pic32mx274fxxxb")]
     let clock = Osc::new(p.CRU, sysclock);
 
-    let mut timer = Coretimer::new(sysclock);
+    let mut timer = Delay::new(sysclock);
 
     /* initialize clock control and uart */
     let uart = Uart::uart1(p.UART1, &clock, 115200);

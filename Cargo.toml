@@ -1,6 +1,6 @@
 [package]
 name = "oled-test"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Kiffie van Haash"]
 license = "MIT"
 edition = "2018"
@@ -12,10 +12,10 @@ default = ["pic32mx1xxfxxxb"]
 #default = ["pic32mx274fxxxb"]
 
 [dependencies]
-mips_rt = { path = "../mcu-rs/mips-rt" }
+mips_rt = { git = "https://github.com/kiffie/mcu-rs.git" }
 embedded-hal = "0.2.3"
-tinylog = { path = "../mcu-rs/tinylog" }
-pic32-hal = { path = "../mcu-rs/pic32-hal" }
+tinylog = { git = "https://github.com/kiffie/mcu-rs.git" }
+pic32-hal = { git = "https://github.com/kiffie/mcu-rs.git" }
 ssd1306 = "0.2.6"
 embedded-graphics = "0.4.9"
 
