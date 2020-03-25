@@ -14,7 +14,7 @@ default = ["pic32mx1xxfxxxb"]
 [dependencies]
 mips_rt = { git = "https://github.com/kiffie/mcu-rs.git" }
 embedded-hal = "0.2.3"
-tinylog = { git = "https://github.com/kiffie/mcu-rs.git" }
+log = "0.4.8"
 pic32-hal = { git = "https://github.com/kiffie/mcu-rs.git" }
 ssd1306 = "0.2.6"
 embedded-graphics = "0.4.9"

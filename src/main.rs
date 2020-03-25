@@ -3,17 +3,13 @@
 #![no_main]
 #![no_std]
 #![feature(panic_info_message)]
+#![feature(const_fn)]
 
-use core::cell::RefCell;
 use core::panic::PanicInfo;
 
-use tinylog;
-use tinylog::{debug, info, error};
 use mips_rt;
-
 use mips_rt::interrupt;
 
-use embedded_hal::serial::Write;
 use embedded_hal::digital::v2::{OutputPin, ToggleableOutputPin};
 use embedded_hal::blocking::delay::DelayMs;
 
@@ -34,7 +30,9 @@ use embedded_graphics::prelude::*;
 use embedded_graphics::Drawing;
 use embedded_graphics::fonts::{Font6x8, Font6x12, Font8x16, Font12x16};
 
-const TL_LOGLEVEL: tinylog::Level = tinylog::Level::Debug;
+mod ehsw_logger;
+use ehsw_logger::EhswLogger;
+use log::{LevelFilter, debug, error, info};
 
 // PIC32 configuration registers for PIC32MX150
 #[cfg(feature = "pic32mx1xxfxxxb")]
@@ -58,22 +56,7 @@ pub static CONFIGSFRS: [u32; 4] = [
     0xfffffff3,     // DEVCFG0
 ];
 
-
-static mut LOG_TX: Option<RefCell<Tx<UART1>>> = None;
-
-fn log_bwrite_all(buffer: &[u8]) {
-    unsafe {
-        if let Some(ref uartcell) = LOG_TX {
-            let mut uart = uartcell.borrow_mut();
-            for b in buffer {
-                while match uart.write(*b) {
-                    Ok(()) => false,
-                    Err(_) => true,
-                } {}
-            }
-        }
-    }
-}
+static LOGGER: EhswLogger<Tx<UART1>> = EhswLogger::new();
 
 #[no_mangle]
 pub fn main() -> ! {
@@ -97,8 +80,9 @@ pub fn main() -> ! {
     let uart = Uart::uart1(p.UART1, &clock, 115200);
     timer.delay_ms(10u32);
     let (tx, _) = uart.split();
-    unsafe { LOG_TX = Some(RefCell::new(tx)) };
-    tinylog::set_bwrite_all(log_bwrite_all);
+    LOGGER.set_tx(tx);
+    log::set_logger(&LOGGER).unwrap();
+    log::set_max_level(LevelFilter::Trace);
     debug!("sysclock = {} Hz", sysclock.0);
 
     /* LED */
@@ -114,7 +98,7 @@ pub fn main() -> ! {
 
     led.set_high().unwrap();
     for _i in 1..10 {
-	led.toggle().unwrap();
+        led.toggle().unwrap();
         timer.delay_ms(100);
     }
 
