@@ -7,32 +7,32 @@
 use core::cell::RefCell;
 use core::panic::PanicInfo;
 
-use tinylog;
-use tinylog::{debug, info, error};
 use mips_rt;
+use tinylog;
+use tinylog::{debug, error, info};
 
 use mips_rt::interrupt;
 
-use embedded_hal::serial::Write;
-use embedded_hal::digital::v2::{OutputPin, ToggleableOutputPin};
 use embedded_hal::blocking::delay::DelayMs;
+use embedded_hal::digital::v2::{OutputPin, ToggleableOutputPin};
+use embedded_hal::serial::Write;
 
-use pic32_hal::pac;
-use pic32_hal::pac::{UART1};
-use pic32_hal::uart::{Uart, Tx};
-use pic32_hal::gpio::GpioExt;
-use pic32_hal::coretimer::Delay;
-use pic32_hal::i2c::{I2c, Fscl};
 use pic32_hal::clock::Osc;
+use pic32_hal::coretimer::Delay;
+use pic32_hal::gpio::GpioExt;
+use pic32_hal::i2c::{Fscl, I2c};
+use pic32_hal::pac;
+use pic32_hal::pac::UART1;
 use pic32_hal::time::U32Ext;
+use pic32_hal::uart::{Tx, Uart};
 
-use ssd1306::Builder;
 use ssd1306::mode::GraphicsMode;
+use ssd1306::Builder;
 
+use embedded_graphics::fonts::{Font12x16, Font6x12, Font6x8, Font8x16};
 use embedded_graphics::image::Image1BPP;
 use embedded_graphics::prelude::*;
 use embedded_graphics::Drawing;
-use embedded_graphics::fonts::{Font6x8, Font6x12, Font8x16, Font12x16};
 
 const TL_LOGLEVEL: tinylog::Level = tinylog::Level::Debug;
 
@@ -41,10 +41,10 @@ const TL_LOGLEVEL: tinylog::Level = tinylog::Level::Debug;
 #[link_section = ".configsfrs"]
 #[no_mangle]
 pub static CONFIGSFRS: [u32; 4] = [
-    0xdfffffff,     // DEVCFG3
-    0xfff9ffd9,     // DEVCFG2
-    0xff7fcfd9,     // DEVCFG1
-    0x7ffffffb,     // DEVCFG0
+    0xdfffffff, // DEVCFG3
+    0xfff9ffd9, // DEVCFG2
+    0xff7fcfd9, // DEVCFG1
+    0x7ffffffb, // DEVCFG0
 ];
 
 // PIC32 configuration registers for PIC32MX274
@@ -52,12 +52,11 @@ pub static CONFIGSFRS: [u32; 4] = [
 #[link_section = ".configsfrs"]
 #[no_mangle]
 pub static CONFIGSFRS: [u32; 4] = [
-    0xcf3fffff,     // DEVCFG3
-    0x7fe9f9d9,     // DEVCFG2
-    0xff74cfd9,     // DEVCFG1
-    0xfffffff3,     // DEVCFG0
+    0xcf3fffff, // DEVCFG3
+    0x7fe9f9d9, // DEVCFG2
+    0xff74cfd9, // DEVCFG1
+    0xfffffff3, // DEVCFG0
 ];
-
 
 static mut LOG_TX: Option<RefCell<Tx<UART1>>> = None;
 
@@ -77,7 +76,6 @@ fn log_bwrite_all(buffer: &[u8]) {
 
 #[no_mangle]
 pub fn main() -> ! {
-
     //configure IO ports for UART
     let p = unsafe { pac::Peripherals::steal() };
     let pps = p.PPS;
@@ -114,7 +112,7 @@ pub fn main() -> ! {
 
     led.set_high().unwrap();
     for _i in 1..10 {
-	led.toggle().unwrap();
+        led.toggle().unwrap();
         timer.delay_ms(100);
     }
 
@@ -124,21 +122,29 @@ pub fn main() -> ! {
     disp.init().unwrap();
     disp.flush().unwrap();
 
-    disp.draw(Font6x8::render_str("Hello World 6x8")
-        .translate(Coord::new(0,0))
-        .into_iter());
+    disp.draw(
+        Font6x8::render_str("Hello World 6x8")
+            .translate(Coord::new(0, 0))
+            .into_iter(),
+    );
 
-    disp.draw(Font6x12::render_str("Hello World 6x12")
-        .translate(Coord::new(0,8))
-        .into_iter());
+    disp.draw(
+        Font6x12::render_str("Hello World 6x12")
+            .translate(Coord::new(0, 8))
+            .into_iter(),
+    );
 
-    disp.draw(Font8x16::render_str("Hello World 8x16")
-        .translate(Coord::new(0,20))
-        .into_iter());
+    disp.draw(
+        Font8x16::render_str("Hello World 8x16")
+            .translate(Coord::new(0, 20))
+            .into_iter(),
+    );
 
-    disp.draw(Font12x16::render_str("Hello 12x16")
-        .translate(Coord::new(0,36))
-        .into_iter());
+    disp.draw(
+        Font12x16::render_str("Hello 12x16")
+            .translate(Coord::new(0, 36))
+            .into_iter(),
+    );
 
     disp.flush().unwrap();
 
@@ -159,14 +165,14 @@ pub fn main() -> ! {
         if move_right {
             if x < 64 {
                 x += 1;
-            }else{
+            } else {
                 debug!("left");
                 move_right = false;
             }
-        }else {
+        } else {
             if x > 0 {
                 x -= 1;
-            }else{
+            } else {
                 debug!("right");
                 move_right = true;
             }
