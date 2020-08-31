@@ -1,10 +1,11 @@
 # pic32-rs-oled-demo
 Shows a moving Rust logo on an OLED display
 
-Before the logo is shown text strings in different font sizes are displayed for
-a few seconds.
+More examples, including this one, can be found in the
+[pic32-rs repository]( https://github.com/kiffie/pic32-rs)
 
-This example also demonstrates some logging via the UART (port RPA0 at pin2 on
+Before the logo is shown text strings in different font sizes are displayed for
+a few seconds. This example also demonstrates some logging via the UART (port RPA0 at pin2 on
 28 pin devices, 115200 bits/s).
 
 Building requires `xargo` and `cargo-binutils`, which can be installed with
